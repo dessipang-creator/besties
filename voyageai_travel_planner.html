@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoyageAI - Premium Smart Travel Planner</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                        },
+                        accent: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Custom dynamic transitions */
+        .tab-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-primary-600 to-sky-400 rounded-xl flex items-center justify-center shadow-md shadow-primary-500/20">
+                        <i class="fa-solid fa-compass text-white text-xl animate-spin-slow"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-sky-500 bg-clip-text text-transparent">VoyageAI</span>
+                        <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full">Intelligent Demo</span>
+                    </div>
+                </div>
+
+                <!-- Live Connection State Indicator -->
+                <div class="flex items-center gap-3">
+                    <div id="connection-badge" class="flex items-center gap-1.5 text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full border border-emerald-200">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        AI Engine Ready
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+        
+        <!-- Left Sidebar: Trips & Creator -->
+        <section class="w-full lg:w-80 flex flex-col gap-6 shrink-0">
+            <!-- Trip Planner Form Container -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-primary-500"></i>
+                        Plan a New Trip
+                    </h2>
+                </div>
+                
+                <form id="trip-generator-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Destination</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </span>
+                            <input type="text" id="dest-input" required placeholder="e.g., Kyoto, Rome, Hawaii" 
+                                class="w-full pl-9 pr-3 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-all duration-200">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Duration</label>
+                            <select id="days-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="3" selected>3 Days</option>
+                                <option value="4">4 Days</option>
+                                <option value="5">5 Days</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Season</label>
+                            <select id="season-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="Spring" selected>🌸 Spring</option>
+                                <option value="Summer">☀️ Summer</option>
+                                <option value="Autumn">🍁 Autumn</option>
+                                <option value="Winter">❄️ Winter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Travel Style / Vibe</label>
+                        <select id="vibe-input" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="Balanced Explore">🎒 Balanced Explorer</option>
+                            <option value="Culinary & Foodie">🍣 Culinary & Foodie</option>
+                            <option value="Relaxed & Leisurely">🏖️ Relaxed & Leisure</option>
+                            <option value="Adventure & Action">🥾 Adventure & Action</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Buttons -->
+                    <div class="pt-2 space-y-2">
+                        <button type="button" id="btn-create-local" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-xl text-xs transition-all duration-200 flex items-center justify-center gap-2 border border-slate-200">
+                            <i class="fa-solid fa-wand-magic"></i>
+                            Quick Instant Draft
+                        </button>
+                        
+                        <button type="submit" id="btn-create-ai" class="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-sky-500 hover:from-primary-700 hover:to-sky-600 text-white font-bold rounded-xl text-xs shadow-md shadow-primary-500/10 hover:shadow-primary-500/20 transition-all duration-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-sparkles text-amber-300 animate-pulse"></i>
+                            Generate Smart AI Trip
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Saved Trips List -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1 flex flex-col">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider mb-3">Your Travel Portfolio</h3>
+                <div id="trips-container" class="space-y-3 overflow-y-auto max-h-[300px] lg:max-h-none flex-1 pr-1">
+                    <!-- Dynamic Trips injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Main Viewport Area -->
+        <section class="flex-1 flex flex-col gap-6 min-w-0">
+            
+            <!-- AI Loading Indicator Overlaid inside Content Area -->
+            <div id="ai-loading-screen" class="hidden bg-white border border-slate-200 rounded-3xl p-12 text-center shadow-lg flex flex-col items-center justify-center min-h-[500px]">
+                <div class="relative mb-6">
+                    <div class="w-20 h-20 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane text-2xl text-primary-500 animate-bounce"></i>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">VoyageAI is mapping your journey...</h3>
+                <p id="loading-step-text" class="text-sm text-slate-500 max-w-sm mb-6">Analyzing geographic trends & historical patterns...</p>
+                <div class="w-full max-w-xs bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div id="loading-progress-bar" class="bg-gradient-to-r from-primary-500 to-sky-400 h-1.5 rounded-full transition-all duration-500" style="width: 10%;"></div>
+                </div>
+            </div>
+
+            <!-- Workspace Content Workspace (Visible when loaded) -->
+            <div id="trip-workspace" class="space-y-6">
+                <!-- Header/Hero banner for active trip -->
+                <div class="relative bg-gradient-to-r from-primary-900 via-primary-800 to-sky-900 text-white rounded-3xl p-6 sm:p-8 overflow-hidden shadow-lg border border-primary-950">
+                    <!-- Geometric overlay shapes -->
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
+                    <div class="absolute right-1/4 -top-10 w-32 h-32 bg-sky-500/10 rounded-full blur-xl"></div>
+                    
+                    <div class="relative flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span id="workspace-badge-vibe" class="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-xs font-semibold tracking-wide uppercase"></span>
+                                <span id="workspace-badge-season" class="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-xs font-semibold tracking-wide uppercase"></span>
+                            </div>
+                            <h1 id="workspace-title" class="text-3xl sm:text-4xl font-extrabold tracking-tight"></h1>
+                            <p id="workspace-subtitle" class="text-sky-200 text-sm mt-1 max-w-xl font-medium"></p>
+                        </div>
+                        
+                        <!-- Delete and actions container -->
+                        <div class="flex items-center gap-3">
+                            <button id="btn-delete-trip" class="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 border border-red-500/20 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Delete Plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Three Panel Layout: Weather, Planner Workspace, Packing List -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    
+                    <!-- Left Column: Forecast & Packing -->
+                    <div class="xl:col-span-1 space-y-6">
+                        <!-- Dynamic Weather Widget -->
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-bold text-slate-800 flex items-center gap-2 text-md">
+                                        <i class="fa-solid fa-cloud-sun-rain text-sky-500"></i>
+                                        Weather Forecast
+                                    </h3>
+                                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-semibold">Simulated Forecast</span>
+                                </div>
+                                <div id="weather-summary-box" class="flex items-center gap-4 bg-gradient-to-br from-slate-50 to-slate-100/50 p-4 rounded-2xl border border-slate-150 mb-4">
+                                    <!-- Big current day indicator -->
+                                    <div id="weather-current-icon" class="text-4xl text-sky-500 flex items-center justify-center w-12"></div>
+                                    <div>
+                                        <div id="weather-current-temp" class="text-2xl font-extrabold text-slate-800">--°C</div>
+                                        <div id="weather-current-desc" class="text-xs text-slate-500 font-semibold capitalize">Pleasant weather</div>
+                                    </div>
+                                </div>
+                                <!-- 3 Day Compact Strip -->
+                                <div id="weather-days-list" class="space-y-3">
+                                    <!-- Days render dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Packing & Preparation List -->
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2 text-md">
+                                    <i class="fa-solid fa-suitcase text-amber-500"></i>
+                                    Packing Checklist
+                                </h3>
+                                <button id="btn-add-pack-item" class="text-xs text-primary-500 hover:text-primary-600 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-plus"></i> Add Item
+                                </button>
+                            </div>
+                            <div id="packing-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                                <!-- Dynamic checkmarks load here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center & Right: Detailed Itinerary Plan Timeline -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <!-- Day Selection Pills -->
+                        <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-1.5 overflow-x-auto">
+                            <span class="text-xs font-bold text-slate-400 px-3 uppercase tracking-wider shrink-0">Timeline:</span>
+                            <div id="itinerary-days-tabs" class="flex items-center gap-1.5">
+                                <!-- Day selection tabs render dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Main Active Itinerary Schedule Box -->
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative">
+                            <!-- Header Info -->
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                                <div>
+                                    <h3 id="current-day-title" class="font-bold text-lg text-slate-900">Day X Planner</h3>
+                                    <p id="current-day-theme" class="text-xs text-slate-500 font-semibold italic mt-0.5"></p>
+                                </div>
+                                <button id="btn-open-activity-modal" class="px-3.5 py-2 bg-primary-50 hover:bg-primary-100 text-primary-600 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-primary-200/50">
+                                    <i class="fa-solid fa-calendar-plus"></i> Add Custom Activity
+                                </button>
+                            </div>
+
+                            <!-- Schedule Timeline representation -->
+                            <div class="relative pl-6 border-l-2 border-slate-100 space-y-6 min-h-[250px]" id="itinerary-events-container">
+                                <!-- Events list dynamically populates here -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Blank State View (Visible on initial startup when no plans active) -->
+            <div id="blank-state-view" class="bg-white border border-slate-200 rounded-3xl p-12 text-center shadow-sm flex flex-col items-center justify-center min-h-[500px]">
+                <div class="w-24 h-24 bg-gradient-to-br from-primary-50 to-sky-100 rounded-full flex items-center justify-center text-primary-500 text-4xl mb-6 shadow-inner">
+                    <i class="fa-solid fa-earth-americas animate-pulse"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">No Active Travel Map</h3>
+                <p class="text-slate-500 max-w-sm mb-6 text-sm">Create an instant trip draft using our local library, or configure the options to generate a fully customized AI Travel Itinerary!</p>
+                <button onclick="document.getElementById('dest-input').focus();" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-primary-500/15 flex items-center gap-2">
+                    <i class="fa-solid fa-rocket"></i> Get Started
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Add Custom Activity Modal Overlay -->
+    <div id="activity-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl p-6 relative">
+            <button id="btn-close-activity-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-lg text-slate-900 mb-4">Add Custom Event</h3>
+            
+            <form id="activity-modal-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">Time</label>
+                        <input type="text" id="act-time" required placeholder="e.g., 09:00 AM" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">Category</label>
+                        <select id="act-cat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="culture" selected>🏛️ Culture</option>
+                            <option value="food">🍣 Food</option>
+                            <option value="explore">🗺️ Exploration</option>
+                            <option value="transit">✈️ Transit/Hotel</option>
+                            <option value="chill">☕ Relax/Chill</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Activity Title</label>
+                    <input type="text" id="act-title" required placeholder="e.g., Visit Fushimi Inari Shrine" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Location / Notes</label>
+                    <input type="text" id="act-loc" placeholder="e.g., Inari, Fushimi Ward" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" id="btn-cancel-activity-modal" class="px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-semibold transition-colors border border-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-xs font-bold transition-all">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Box -->
+    <div id="toast-message" class="hidden fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-xl border border-slate-800 shadow-xl z-50 flex items-center gap-3 max-w-sm transition-all duration-300">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-sky-400"></i>
+        <p id="toast-text" class="text-xs font-semibold tracking-wide"></p>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-400 font-medium">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 VoyageAI Systems. Powered by Gemini Core.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* Interactive Application State & Data Logic */
+
+        // Default Trip Library (Fallback & Startup options)
+        const PRESETS = {
+            "Kyoto": {
+                destination: "Kyoto",
+                days: 3,
+                season: "Spring",
+                vibe: "Balanced Explore",
+                tripSummary: "A magnificent journey through Japan's imperial capital, capturing ancient wooden temples, serene rock gardens, and traditional matcha tasting sessions in full cherry blossom bloom.",
+                packingTips: [
+                    "Light jacket (for cool evenings)",
+                    "Comfortable walking shoes",
+                    "Cash (essential for smaller shrines & food stalls)",
+                    "Umbrella or raincoat",
+                    "Camera & backup storage"
+                ],
+                weatherForecast: [
+                    { dayName: "Day 1", tempMin: 12, tempMax: 19, condition: "Sunny", percentageRain: 10 },
+                    { dayName: "Day 2", tempMin: 11, tempMax: 18, condition: "Cloudy", percentageRain: 25 },
+                    { dayName: "Day 3", tempMin: 13, tempMax: 17, condition: "Rainy", percentageRain: 70 }
+                ],
+                itinerary: [
+                    {
+                        day: 1,
+                        theme: "Historic Arashiyama & Bamboo Groves",
+                        activities: [
+                            { time: "09:00 AM", category: "explore", activity: "Walk through Arashiyama Bamboo Grove", location: "Western Kyoto", checked: false },
+                            { time: "11:30 AM", category: "culture", activity: "Visit Tenryu-ji Temple & Gardens", location: "Arashiyama", checked: false },
+                            { time: "01:00 PM", category: "food", activity: "Traditional Yudofu (Tofu) Lunch", location: "Saga Toriimoto", checked: false },
+                            { time: "03:30 PM", category: "explore", activity: "Cross the Togetsukyo Bridge", location: "Katsura River", checked: false },
+                            { time: "06:30 PM", category: "chill", activity: "Wander through historic Pontocho Alley", location: "Downtown Kyoto", checked: false }
+                        ]
+                    },
+                    {
+                        day: 2,
+                        theme: "Golden Pavilions & Zen Rocks",
+                        activities: [
+                            { time: "09:00 AM", category: "culture", activity: "Kinkaku-ji (The Golden Pavilion)", location: "Northern Kyoto", checked: false },
+                            { time: "11:00 AM", category: "culture", activity: "Contemplate at Ryoan-ji Zen Garden", location: "Ryoanji Goryonoshitacho", checked: false },
+                            { time: "01:30 PM", category: "food", activity: "Matcha green tea tasting & Wagashi sweets", location: "Uji Tea Salon", checked: false },
+                            { time: "03:00 PM", category: "explore", activity: "Walk around historic Higashiyama Streets", location: "Higashiyama District", checked: false },
+                            { time: "06:00 PM", category: "chill", activity: "Teahouse dinner experience", location: "Gion District", checked: false }
+                        ]
+                    },
+                    {
+                        day: 3,
+                        theme: "The Path of Ten Thousand Shrines",
+                        activities: [
+                            { time: "08:00 AM", category: "explore", activity: "Hike up Fushimi Inari Shrine Gates", location: "Fushimi Ward", checked: false },
+                            { time: "11:30 AM", category: "culture", activity: "Explore Kiyomizu-dera Wooden Stage", location: "Kiyomizu", checked: false },
+                            { time: "01:30 PM", category: "food", activity: "Soba noodle lunch", location: "Kiyomizu-zaka street", checked: false },
+                            { time: "03:00 PM", category: "chill", activity: "Souvenir shopping & green tea ice cream", location: "Sannenzaka & Ninenzaka", checked: false }
+                        ]
+                    }
+                ]
+            },
+            "Rome": {
+                destination: "Rome",
+                days: 3,
+                season: "Summer",
+                vibe: "Balanced Explore",
+                tripSummary: "An exquisite venture stepping through classical antiquities, majestic renaissance squares, and enjoying culinary delights under the warm Mediterranean sun.",
+                packingTips: [
+                    "Sunscreen & sunglasses",
+                    "Breathable linen clothing",
+                    "Reusable water bottle (for public fountains)",
+                    "Comfortable walking sandals",
+                    "Shoulder coverings for Vatican Basilica"
+                ],
+                weatherForecast: [
+                    { dayName: "Day 1", tempMin: 22, tempMax: 31, condition: "Sunny", percentageRain: 0 },
+                    { dayName: "Day 2", tempMin: 23, tempMax: 32, condition: "Sunny", percentageRain: 5 },
+                    { dayName: "Day 3", tempMin: 21, tempMax: 30, condition: "Windy", percentageRain: 15 }
+                ],
+                itinerary: [
+                    {
+                        day: 1,
+                        theme: "Wonders of Imperial Rome",
+                        activities: [
+                            { time: "08:30 AM", category: "culture", activity: "Guided Tour of the Colosseum", location: "Piazza del Colosseo", checked: false },
+                            { time: "11:00 AM", category: "explore", activity: "Walk through the Roman Forum & Palatine Hill", location: "Via dei Fori Imperiali", checked: false },
+                            { time: "01:30 PM", category: "food", activity: "Roman Carbonara & Cacio e Pepe Lunch", location: "Trastevere Tavern", checked: false },
+                            { time: "04:00 PM", category: "chill", activity: "Relax at Capitoline Hill Viewpoint", location: "Piazza del Campidoglio", checked: false }
+                        ]
+                    },
+                    {
+                        day: 2,
+                        theme: "Vatican City & St. Peter's Basilica",
+                        activities: [
+                            { time: "08:00 AM", category: "culture", activity: "Vatican Museums & Sistine Chapel", location: "Vatican City", checked: false },
+                            { time: "11:30 AM", category: "culture", activity: "Marvel inside St. Peter's Basilica", location: "St. Peter's Square", checked: false },
+                            { time: "02:00 PM", category: "food", activity: "Hand-crafted Gelato Break", location: "Giolitti Gelateria", checked: false },
+                            { time: "04:00 PM", category: "explore", activity: "Walk around Castel Sant'Angelo", location: "Tiber Riverbank", checked: false }
+                        ]
+                    },
+                    {
+                        day: 3,
+                        theme: "Baroque Plazas & Fountain Tosses",
+                        activities: [
+                            { time: "09:30 AM", category: "explore", activity: "Toss a coin into Trevi Fountain", location: "Piazza di Trevi", checked: false },
+                            { time: "11:00 AM", category: "culture", activity: "Examine the glorious dome of the Pantheon", location: "Piazza della Rotonda", checked: false },
+                            { time: "01:00 PM", category: "food", activity: "Pizza al Taglio (by the slice) Lunch", location: "Campo de' Fiori Market", checked: false },
+                            { time: "03:30 PM", category: "explore", activity: "Wander Piazza Navona & Spanish Steps", location: "Centro Storico", checked: false }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Application State
+        let trips = JSON.parse(localStorage.getItem('voyageai_trips')) || [];
+        let activeTripId = localStorage.getItem('voyageai_active_id') || "";
+        let selectedDay = 1;
+
+        // Initialize App on load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Seed sample data if empty
+            if (trips.length === 0) {
+                const kyotoTrip = { id: "trip_kyoto", ...PRESETS["Kyoto"] };
+                const romeTrip = { id: "trip_rome", ...PRESETS["Rome"] };
+                trips.push(kyotoTrip, romeTrip);
+                activeTripId = "trip_kyoto";
+                saveState();
+            }
+            
+            renderTripsList();
+            switchToTrip(activeTripId);
+            setupEventListeners();
+        });
+
+        // Save current trip arrays to Storage
+        function saveState() {
+            localStorage.setItem('voyageai_trips', JSON.stringify(trips));
+            if (activeTripId) {
+                localStorage.setItem('voyageai_active_id', activeTripId);
+            } else {
+                localStorage.removeItem('voyageai_active_id');
+            }
+        }
+
+        // Render Sidebar List
+        function renderTripsList() {
+            const container = document.getElementById('trips-container');
+            container.innerHTML = '';
+
+            trips.forEach(trip => {
+                const isActive = trip.id === activeTripId;
+                const totalActivities = trip.itinerary.reduce((acc, curr) => acc + curr.activities.length, 0);
+                const checkedActivities = trip.itinerary.reduce((acc, curr) => acc + curr.activities.filter(a => a.checked).length, 0);
+                const progressPct = totalActivities > 0 ? Math.round((checkedActivities / totalActivities) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                    isActive 
+                    ? 'bg-gradient-to-br from-primary-50 to-sky-50/50 border-primary-200 shadow-sm' 
+                    : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300'
+                }`;
+                card.onclick = () => switchToTrip(trip.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">${trip.destination}</h4>
+                            <p class="text-xs text-slate-400 font-medium">${trip.season} • ${trip.days} Days • ${trip.vibe}</p>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md ${
+                            trip.season === 'Winter' ? 'bg-sky-50 text-sky-600' :
+                            trip.season === 'Spring' ? 'bg-rose-50 text-rose-500' :
+                            trip.season === 'Summer' ? 'bg-amber-50 text-amber-600' : 'bg-orange-50 text-orange-600'
+                        }">
+                            ${trip.season}
+                        </span>
+                    </div>
+                    <!-- Small Tracker progress line -->
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold mb-1">
+                            <span>Itinerary Track</span>
+                            <span>${checkedActivities}/${totalActivities} Done</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                            <div class="bg-primary-500 h-1 rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Switch displayed trip in Workspace
+        function switchToTrip(id) {
+            const trip = trips.find(t => t.id === id);
+            if (!trip) {
+                // Show empty state if no active trip selected
+                document.getElementById('trip-workspace').classList.add('hidden');
+                document.getElementById('blank-state-view').classList.remove('hidden');
+                activeTripId = "";
+                saveState();
+                renderTripsList();
+                return;
+            }
+
+            activeTripId = id;
+            document.getElementById('trip-workspace').classList.remove('hidden');
+            document.getElementById('blank-state-view').classList.add('hidden');
+
+            // Render Hero Banner info
+            document.getElementById('workspace-badge-vibe').innerText = `🎒 ${trip.vibe}`;
+            document.getElementById('workspace-badge-season').innerText = `${getSeasonEmoji(trip.season)} ${trip.season}`;
+            document.getElementById('workspace-title').innerText = `Trip to ${trip.destination}`;
+            document.getElementById('workspace-subtitle').innerText = trip.tripSummary || "Your modern dynamic custom journey itinerary plan.";
+
+            // Reset selected day tab
+            selectedDay = 1;
+
+            // Render Widgets
+            renderWeatherWidget(trip);
+            renderPackingList(trip);
+            renderDayTabs(trip);
+            renderItineraryDay(trip);
+            saveState();
+            renderTripsList();
+        }
+
+        // Helper Emoji selectors
+        function getSeasonEmoji(season) {
+            switch(season) {
+                case "Spring": return "🌸";
+                case "Summer": return "☀️";
+                case "Autumn": return "🍁";
+                case "Winter": return "❄️";
+                default: return "🗺️";
+            }
+        }
+
+        // Render dynamic weather forecasting conditions
+        function renderWeatherWidget(trip) {
+            const container = document.getElementById('weather-days-list');
+            container.innerHTML = '';
+
+            const forecast = trip.weatherForecast || [];
+            if (forecast.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No weather forecast available.</p>';
+                return;
+            }
+
+            // Fill Main Day Weather Box based on current forecast selection
+            const mainDay = forecast[0];
+            const mainIcon = getWeatherIconClass(mainDay.condition);
+            document.getElementById('weather-current-icon').className = `text-4xl flex items-center justify-center w-12 ${mainIcon}`;
+            document.getElementById('weather-current-temp').innerText = `${mainDay.tempMax}°C / ${mainDay.tempMin}°C`;
+            document.getElementById('weather-current-desc').innerText = `${mainDay.condition} - ${mainDay.percentageRain}% Rain`;
+
+            // Forecast lists
+            forecast.forEach(f => {
+                const iconClass = getWeatherIconClass(f.condition);
+                const listRow = document.createElement('div');
+                listRow.className = "flex items-center justify-between text-xs py-2 border-b border-slate-50 last:border-b-0";
+                listRow.innerHTML = `
+                    <span class="font-bold text-slate-500 w-12">${f.dayName}</span>
+                    <div class="flex items-center gap-2">
+                        <i class="${iconClass}"></i>
+                        <span class="text-slate-600 font-medium capitalize">${f.condition}</span>
+                    </div>
+                    <span class="font-extrabold text-slate-800">${f.tempMax}° / ${f.tempMin}°</span>
+                `;
+                container.appendChild(listRow);
+            });
+        }
+
+        // Weather Icon map styling classes
+        function getWeatherIconClass(condition) {
+            const clean = condition.toLowerCase();
+            if (clean.includes('sunny') || clean.includes('clear')) return "fa-solid fa-sun text-amber-500 text-base";
+            if (clean.includes('rain') || clean.includes('shower')) return "fa-solid fa-cloud-showers-heavy text-blue-400 text-base";
+            if (clean.includes('snow') || clean.includes('freeze')) return "fa-solid fa-snowflake text-sky-200 text-base";
+            if (clean.includes('wind')) return "fa-solid fa-wind text-teal-400 text-base";
+            if (clean.includes('thunder')) return "fa-solid fa-cloud-bolt text-purple-500 text-base";
+            return "fa-solid fa-cloud text-slate-400 text-base"; // fallback cloud
+        }
+
+        // Render custom packing checklist
+        function renderPackingList(trip) {
+            const container = document.getElementById('packing-container');
+            container.innerHTML = '';
+
+            const items = trip.packingTips || [];
+            if (items.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic">No packing items configured.</p>';
+                return;
+            }
+
+            // Create active toggleable list
+            items.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between group py-1.5 hover:bg-slate-50 px-2 rounded-lg transition-all duration-150";
+                
+                row.innerHTML = `
+                    <label class="flex items-center gap-2.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                        <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" 
+                            ${trip.packingItemsState && trip.packingItemsState[item] ? 'checked' : ''}
+                            onchange="togglePackingItem('${trip.id}', '${item}')">
+                        <span class="${trip.packingItemsState && trip.packingItemsState[item] ? 'line-through text-slate-400' : ''}">${item}</span>
+                    </label>
+                    <button onclick="deletePackingItem('${trip.id}', ${index})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid fa-trash-can text-[11px]"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Toggle pack checklist item state
+        window.togglePackingItem = function(tripId, itemText) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                if (!trip.packingItemsState) {
+                    trip.packingItemsState = {};
+                }
+                trip.packingItemsState[itemText] = !trip.packingItemsState[itemText];
+                saveState();
+                renderPackingList(trip);
+            }
+        };
+
+        // Add custom pack item
+        document.getElementById('btn-add-pack-item').addEventListener('click', () => {
+            const trip = trips.find(t => t.id === activeTripId);
+            if (!trip) return;
+
+            // Simple text box prompt (Safe UI alternative without alert/confirm)
+            const inputHtml = `
+                <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" id="pack-dialog">
+                    <div class="bg-white w-full max-w-xs rounded-2xl p-5 border border-slate-100 shadow-xl">
+                        <h4 class="font-bold text-sm text-slate-900 mb-3">Add Packing Item</h4>
+                        <input type="text" id="new-pack-val" placeholder="e.g., Swimsuit, Passport" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none mb-4">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="document.getElementById('pack-dialog').remove()" class="px-3 py-1.5 text-xs text-slate-500 font-medium">Cancel</button>
+                            <button onclick="saveNewPackItem()" class="px-3.5 py-1.5 bg-primary-500 text-white font-bold text-xs rounded-lg shadow-sm">Add</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const div = document.createElement('div');
+            div.innerHTML = inputHtml;
+            document.body.appendChild(div);
+        });
+
+        window.saveNewPackItem = function() {
+            const val = document.getElementById('new-pack-val').value.trim();
+            if (val) {
+                const trip = trips.find(t => t.id === activeTripId);
+                if (trip) {
+                    if (!trip.packingTips) trip.packingTips = [];
+                    trip.packingTips.push(val);
+                    saveState();
+                    renderPackingList(trip);
+                }
+            }
+            document.getElementById('pack-dialog').remove();
+            showToast("Added item to packing list!");
+        };
+
+        window.deletePackingItem = function(tripId, index) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                const itemToRemove = trip.packingTips[index];
+                trip.packingTips.splice(index, 1);
+                if (trip.packingItemsState) {
+                    delete trip.packingItemsState[itemToRemove];
+                }
+                saveState();
+                renderPackingList(trip);
+                showToast("Removed packing item.");
+            }
+        };
+
+        // Render Active Days navigation tabs
+        function renderDayTabs(trip) {
+            const tabContainer = document.getElementById('itinerary-days-tabs');
+            tabContainer.innerHTML = '';
+
+            trip.itinerary.forEach(dayPlan => {
+                const isSelected = dayPlan.day === selectedDay;
+                const tab = document.createElement('button');
+                tab.className = `px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                    isSelected 
+                    ? 'bg-primary-500 text-white shadow-md shadow-primary-500/10' 
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/50'
+                }`;
+                tab.innerText = `Day ${dayPlan.day}`;
+                tab.onclick = () => {
+                    selectedDay = dayPlan.day;
+                    renderDayTabs(trip);
+                    renderItineraryDay(trip);
+                };
+                tabContainer.appendChild(tab);
+            });
+        }
+
+        // Render activities inside active Day planner
+        function renderItineraryDay(trip) {
+            const container = document.getElementById('itinerary-events-container');
+            container.innerHTML = '';
+
+            const dayPlan = trip.itinerary.find(d => d.day === selectedDay);
+            if (!dayPlan) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No scheduled day details.</p>';
+                return;
+            }
+
+            document.getElementById('current-day-title').innerText = `Day ${dayPlan.day} Schedule`;
+            document.getElementById('current-day-theme').innerText = dayPlan.theme ? `Focus: ${dayPlan.theme}` : "Exploration and Leisure";
+
+            if (dayPlan.activities.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fa-solid fa-calendar-days text-slate-300 text-3xl mb-3"></i>
+                        <p class="text-xs text-slate-500 font-semibold">No planned events yet.</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Add custom events to design this day.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Populate timelines
+            dayPlan.activities.forEach((act, actIdx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "relative group flex flex-col sm:flex-row sm:items-start justify-between gap-3 p-4 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-2xl transition-all duration-150";
+
+                // Map category colors & icons
+                const { icon, colorClass, bgClass } = getCategoryDetails(act.category);
+
+                itemDiv.innerHTML = `
+                    <!-- Timeline Left Dot Marker -->
+                    <span class="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-primary-500 rounded-full flex items-center justify-center shadow-sm">
+                        <span class="w-1.5 h-1.5 bg-primary-500 rounded-full"></span>
+                    </span>
+
+                    <div class="flex items-start gap-3">
+                        <!-- Category Badge Icon -->
+                        <div class="w-9 h-9 ${bgClass} ${colorClass} rounded-xl flex items-center justify-center shrink-0">
+                            <i class="${icon} text-sm"></i>
+                        </div>
+                        
+                        <div>
+                            <!-- Time Badge -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-400">${act.time}</span>
+                                <span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded ${bgClass} ${colorClass}">
+                                    ${act.category || 'culture'}
+                                </span>
+                            </div>
+                            <!-- Activity Name -->
+                            <h4 class="font-bold text-sm text-slate-800 mt-1 ${act.checked ? 'line-through text-slate-400' : ''}">
+                                ${act.activity}
+                            </h4>
+                            <!-- Location Subtitle -->
+                            ${act.location ? `
+                            <p class="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                                <i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i> ${act.location}
+                            </p>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Toggle actions -->
+                    <div class="flex items-center gap-3 self-end sm:self-center shrink-0">
+                        <!-- Complete Button Checkmark -->
+                        <button onclick="toggleActivityCheck('${trip.id}', ${selectedDay}, ${actIdx})" 
+                            class="px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                            <i class="fa-solid ${act.checked ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300'} text-sm"></i>
+                            ${act.checked ? 'Completed' : 'Mark Done'}
+                        </button>
+                        <!-- Delete specific event -->
+                        <button onclick="deleteActivity('${trip.id}', ${selectedDay}, ${actIdx})" class="text-slate-300 hover:text-red-500 transition-colors">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // Return properties for tags
+        function getCategoryDetails(cat) {
+            const name = (cat || 'culture').toLowerCase();
+            switch(name) {
+                case 'food':
+                    return { icon: "fa-solid fa-utensils", colorClass: "text-rose-600", bgClass: "bg-rose-50" };
+                case 'explore':
+                    return { icon: "fa-solid fa-compass", colorClass: "text-blue-600", bgClass: "bg-blue-50" };
+                case 'transit':
+                    return { icon: "fa-solid fa-plane-departure", colorClass: "text-amber-600", bgClass: "bg-amber-50" };
+                case 'chill':
+                    return { icon: "fa-solid fa-mug-hot", colorClass: "text-teal-600", bgClass: "bg-teal-50" };
+                default:
+                    return { icon: "fa-solid fa-monument", colorClass: "text-primary-600", bgClass: "bg-primary-50" };
+            }
+        }
+
+        // Check off specific events inside dynamic day
+        window.toggleActivityCheck = function(tripId, day, actIdx) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                const dayPlan = trip.itinerary.find(d => d.day === day);
+                if (dayPlan && dayPlan.activities[actIdx]) {
+                    dayPlan.activities[actIdx].checked = !dayPlan.activities[actIdx].checked;
+                    saveState();
+                    renderItineraryDay(trip);
+                    renderTripsList();
+                }
+            }
+        };
+
+        // Delete specific custom/preset activity
+        window.deleteActivity = function(tripId, day, actIdx) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                const dayPlan = trip.itinerary.find(d => d.day === day);
+                if (dayPlan) {
+                    dayPlan.activities.splice(actIdx, 1);
+                    saveState();
+                    renderItineraryDay(trip);
+                    renderTripsList();
+                    showToast("Event deleted successfully.");
+                }
+            }
+        };
+
+        // Set up action listeners
+        function setupEventListeners() {
+            // Instant Draft Generator button
+            document.getElementById('btn-create-local').addEventListener('click', createLocalTripDraft);
+
+            // Submit Trip Creation Planner Form
+            document.getElementById('trip-generator-form').addEventListener('submit', handleTripCreation);
+
+            // Open/Close dialogs
+            document.getElementById('btn-open-activity-modal').addEventListener('click', () => {
+                document.getElementById('activity-modal').classList.remove('hidden');
+            });
+            document.getElementById('btn-close-activity-modal').addEventListener('click', closeActivityModal);
+            document.getElementById('btn-cancel-activity-modal').addEventListener('click', closeActivityModal);
+
+            // Handle Add Custom Event Action Submit
+            document.getElementById('activity-modal-form').addEventListener('submit', handleAddCustomEvent);
+
+            // Handle active plan deletion
+            document.getElementById('btn-delete-trip').addEventListener('click', deleteActiveTrip);
+        }
+
+        // Close Custom Event form
+        function closeActivityModal() {
+            document.getElementById('activity-modal').classList.add('hidden');
+            document.getElementById('activity-modal-form').reset();
+        }
+
+        // Add Custom Activity Event Handler
+        function handleAddCustomEvent(e) {
+            e.preventDefault();
+            const trip = trips.find(t => t.id === activeTripId);
+            if (!trip) return;
+
+            const time = document.getElementById('act-time').value.trim();
+            const category = document.getElementById('act-cat').value;
+            const activity = document.getElementById('act-title').value.trim();
+            const location = document.getElementById('act-loc').value.trim();
+
+            const dayPlan = trip.itinerary.find(d => d.day === selectedDay);
+            if (dayPlan) {
+                dayPlan.activities.push({
+                    time,
+                    category,
+                    activity,
+                    location,
+                    checked: false
+                });
+
+                // Sort activities by time (basic alphabetical string representation)
+                dayPlan.activities.sort((a,b) => a.time.localeCompare(b.time));
+
+                saveState();
+                renderItineraryDay(trip);
+                renderTripsList();
+                closeActivityModal();
+                showToast("Added custom event!");
+            }
+        }
+
+        // Delete active travel plan portfolio option
+        function deleteActiveTrip() {
+            if (!activeTripId) return;
+
+            const currentIdx = trips.findIndex(t => t.id === activeTripId);
+            if (currentIdx > -1) {
+                trips.splice(currentIdx, 1);
+                
+                // select fallback
+                activeTripId = trips.length > 0 ? trips[0].id : "";
+                saveState();
+                renderTripsList();
+                switchToTrip(activeTripId);
+                showToast("Travel plan deleted successfully.");
+            }
+        }
+
+        // Local quick draft option without calling external endpoints
+        function createLocalTripDraft() {
+            const dest = document.getElementById('dest-input').value.trim() || "Kyoto";
+            const days = parseInt(document.getElementById('days-input').value, 10);
+            const season = document.getElementById('season-input').value;
+            const vibe = document.getElementById('vibe-input').value;
+
+            // Look up presets, default to simple generated model if not exists
+            let generatedPlan;
+            if (PRESETS[dest]) {
+                generatedPlan = JSON.parse(JSON.stringify(PRESETS[dest]));
+                generatedPlan.season = season;
+                generatedPlan.vibe = vibe;
+                generatedPlan.id = "trip_" + Date.now();
+            } else {
+                generatedPlan = createStandardLocalMock(dest, days, season, vibe);
+            }
+
+            trips.push(generatedPlan);
+            activeTripId = generatedPlan.id;
+            saveState();
+            renderTripsList();
+            switchToTrip(activeTripId);
+            
+            showToast(`Draft generated for ${dest}!`);
+        }
+
+        // Fallback procedural builder
+        function createStandardLocalMock(dest, days, season, vibe) {
+            const formatDest = dest.charAt(0).toUpperCase() + dest.slice(1);
+            
+            const packingList = [
+                "Valid Passport & Travel Documents",
+                "Universal travel adapter & powerbank",
+                "Comfortable outdoor footwear",
+                "Weather-appropriate outfits"
+            ];
+            if (season === "Winter") packingList.push("Heavy winter coat & gloves");
+            if (season === "Summer") packingList.push("Polarized sunglasses & sunscreen");
+            if (season === "Spring" || season === "Autumn") packingList.push("Versatile layers & windbreaker");
+
+            const weatherOpts = {
+                "Spring": [ { cond: "Sunny", min: 14, max: 21 }, { cond: "Cloudy", min: 13, max: 20 }, { cond: "Rainy", min: 11, max: 18 } ],
+                "Summer": [ { cond: "Sunny", min: 22, max: 32 }, { cond: "Sunny", min: 24, max: 34 }, { cond: "Cloudy", min: 23, max: 31 } ],
+                "Autumn": [ { cond: "Windy", min: 10, max: 17 }, { cond: "Sunny", min: 12, max: 19 }, { cond: "Cloudy", min: 9, max: 16 } ],
+                "Winter": [ { cond: "Snowy", min: -2, max: 4 }, { cond: "Cloudy", min: -3, max: 2 }, { cond: "Sunny", min: -1, max: 6 } ]
+            };
+
+            const selectedWeather = weatherOpts[season] || weatherOpts["Spring"];
+            const weatherForecast = selectedWeather.map((w, idx) => ({
+                dayName: `Day ${idx + 1}`,
+                tempMin: w.min,
+                tempMax: w.max,
+                condition: w.cond,
+                percentageRain: w.cond === "Rainy" ? 80 : w.cond === "Snowy" ? 60 : 10
+            }));
+
+            const itinerary = [];
+            for (let i = 1; i <= days; i++) {
+                itinerary.push({
+                    day: i,
+                    theme: i === 1 ? `Arriving & First Impressions` : i === 2 ? `Local Icons & Landmark Tours` : `Culinary Discoveries & Leisure`,
+                    activities: [
+                        { time: "09:00 AM", category: "transit", activity: i === 1 ? "Check in to local Boutique Hotel" : "Sunrise Scenic Lookout Walk", location: `${formatDest} Downtown`, checked: false },
+                        { time: "11:30 AM", category: "explore", activity: `Guided sightseeing around ${formatDest}`, location: "Central District", checked: false },
+                        { time: "01:30 PM", category: "food", activity: "Traditional Lunch & local specialty tasting", location: "Historic Food Alley", checked: false },
+                        { time: "04:00 PM", category: "chill", activity: "Coffee break & exploration of local shops", location: "Bustling Neighborhood", checked: false }
+                    ]
+                });
+            }
+
+            return {
+                id: "trip_" + Date.now(),
+                destination: formatDest,
+                days,
+                season,
+                vibe,
+                tripSummary: `An exceptional custom planned draft for ${formatDest} curated precisely to capture highlights in ${season} under a comfortable ${vibe} travel speed.`,
+                packingTips: packingList,
+                weatherForecast,
+                itinerary
+            };
+        }
+
+        // Main Form Action: Creates real Gemini AI Custom Generated Travel Plans
+        async function handleTripCreation(e) {
+            e.preventDefault();
+
+            const destVal = document.getElementById('dest-input').value.trim();
+            if (!destVal) return;
+
+            const daysVal = parseInt(document.getElementById('days-input').value, 10);
+            const seasonVal = document.getElementById('season-input').value;
+            const vibeVal = document.getElementById('vibe-input').value;
+
+            // Trigger workspace loader visuals
+            showWorkspaceLoader(true);
+
+            try {
+                // Construct Gemini API Prompt
+                const aiPrompt = `
+                    Generate a detailed ${daysVal}-day travel plan and itinerary for "${destVal}" during ${seasonVal} season with a focus vibe of "${vibeVal}".
+                    Respond with a structured JSON object strictly adhering to the specified schema format. Keep all information highly realistic, specific, and beautiful.
+                `;
+
+                const systemPrompt = `
+                    You are a world-class AI luxury travel planner and local concierge coordinator.
+                    Your goal is to output rich, detailed, realistic, and contextually matching travel plans.
+                    All responses must strictly be JSON matching this exact Schema:
+                    {
+                        "tripSummary": "A highly engaging 2-3 sentence overview highlighting specific neighborhoods, scenery, and expectations",
+                        "packingTips": ["Detailed Packing Recommendation 1", "Detailed Packing Recommendation 2", ...],
+                        "itinerary": [
+                            {
+                                "day": 1,
+                                "theme": "A punchy catchy name/theme for this specific day",
+                                "activities": [
+                                    {
+                                        "time": "09:30 AM",
+                                        "category": "transit / explore / food / chill / culture",
+                                        "activity": "Detailed activity action title (Specific localized name)",
+                                        "location": "Localized venue/place name in the destination"
+                                    },
+                                    ...
+                                ]
+                            },
+                            ...
+                        ],
+                        "weatherForecast": [
+                            {
+                                "dayName": "Day 1",
+                                "tempMin": 15,
+                                "tempMax": 23,
+                                "condition": "Sunny / Rainy / Cloudy / Snowy / Windy / Thunderstorm",
+                                "percentageRain": 15
+                            },
+                            ... (matching number of days up to ${daysVal})
+                        ]
+                    }
+                    Only output valid parsing JSON. No markdown wrappers like \`\`\`json. Output raw JSON format.
+                `;
+
+                // Prepare API Key (Canvas automatically substitutes runtime keys)
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: aiPrompt }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "tripSummary": { "type": "STRING" },
+                                "packingTips": {
+                                    "type": "ARRAY",
+                                    "items": { "type": "STRING" }
+                                },
+                                "itinerary": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "day": { "type": "NUMBER" },
+                                            "theme": { "type": "STRING" },
+                                            "activities": {
+                                                "type": "ARRAY",
+                                                "items": {
+                                                    "type": "OBJECT",
+                                                    "properties": {
+                                                        "time": { "type": "STRING" },
+                                                        "activity": { "type": "STRING" },
+                                                        "location": { "type": "STRING" },
+                                                        "category": { "type": "STRING" }
+                                                    },
+                                                    "required": ["time", "activity", "location", "category"]
+                                                }
+                                            }
+                                        },
+                                        "required": ["day", "theme", "activities"]
+                                    }
+                                },
+                                "weatherForecast": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "dayName": { "type": "STRING" },
+                                            "tempMin": { "type": "NUMBER" },
+                                            "tempMax": { "type": "NUMBER" },
+                                            "condition": { "type": "STRING" },
+                                            "percentageRain": { "type": "NUMBER" }
+                                        },
+                                        "required": ["dayName", "tempMin", "tempMax", "condition", "percentageRain"]
+                                    }
+                                }
+                            },
+                            "required": ["tripSummary", "packingTips", "itinerary", "weatherForecast"]
+                        }
+                    }
+                };
+
+                // Perform the call with basic retry mechanism (exponential backoff)
+                const res = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await res.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!jsonText) {
+                    throw new Error("Invalid format received from Gemini models.");
+                }
+
+                // Process result and insert into our trip storage state
+                const parsedPlan = JSON.parse(jsonText);
+                
+                // Finalize standard properties before insertion
+                parsedPlan.id = "trip_" + Date.now();
+                parsedPlan.destination = destVal;
+                parsedPlan.days = daysVal;
+                parsedPlan.season = seasonVal;
+                parsedPlan.vibe = vibeVal;
+                parsedPlan.packingItemsState = {};
+                
+                // Add checked properties to activities
+                parsedPlan.itinerary.forEach(day => {
+                    day.activities.forEach(act => {
+                        act.checked = false;
+                    });
+                });
+
+                trips.push(parsedPlan);
+                activeTripId = parsedPlan.id;
+                
+                saveState();
+                renderTripsList();
+                switchToTrip(activeTripId);
+                showToast(`AI Trip created for ${destVal}!`);
+
+            } catch (err) {
+                console.warn("AI generation failed or model rate limited. Generating high-quality Local Preset instead.", err);
+                showToast("Fallback: Generated stunning local travel preset.");
+                createLocalTripDraft();
+            } finally {
+                showWorkspaceLoader(false);
+            }
+        }
+
+        // Standard API Fetch With Retry (Exponential Backoff Helper)
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    if (response.status === 429 && retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchWithRetry(url, options, retries - 1, delay * 2);
+                    }
+                    throw new Error(`HTTP Error Status: ${response.status}`);
+                }
+                return response;
+            } catch (err) {
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(url, options, retries - 1, delay * 2);
+                }
+                throw err;
+            }
+        }
+
+        // Show loading progress overlays during generation steps
+        function showWorkspaceLoader(show) {
+            const loader = document.getElementById('ai-loading-screen');
+            const workspace = document.getElementById('trip-workspace');
+            const blankState = document.getElementById('blank-state-view');
+            const loadingText = document.getElementById('loading-step-text');
+            const progressBar = document.getElementById('loading-progress-bar');
+
+            if (show) {
+                loader.classList.remove('hidden');
+                workspace.classList.add('hidden');
+                blankState.classList.add('hidden');
+
+                // Animate sequence steps to give professional feel
+                let step = 0;
+                const steps = [
+                    { t: "Analyzing destination geography and mapping seasons...", p: "15%" },
+                    { t: "Retrieving climate forecasts and preparing dynamic packing templates...", p: "45%" },
+                    { t: "Synthesizing localized dining destinations and transit details...", p: "75%" },
+                    { t: "Validating timeline checks and final formatting structure...", p: "95%" }
+                ];
+
+                const interval = setInterval(() => {
+                    if (step < steps.length) {
+                        loadingText.innerText = steps[step].t;
+                        progressBar.style.width = steps[step].p;
+                        step++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 1200);
+
+                loader.intervalRef = interval;
+            } else {
+                if (loader.intervalRef) {
+                    clearInterval(loader.intervalRef);
+                }
+                loader.classList.add('hidden');
+            }
+        }
+
+        // Render stylized micro-toasts
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast-message');
+            const toastText = document.getElementById('toast-text');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastText.innerText = message;
+            if (isError) {
+                toast.className = "fixed bottom-6 right-6 bg-red-900 text-white px-5 py-3.5 rounded-xl border border-red-800 shadow-xl z-50 flex items-center gap-3 max-w-sm transition-all duration-300";
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
+            } else {
+                toast.className = "fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-xl border border-slate-800 shadow-xl z-50 flex items-center gap-3 max-w-sm transition-all duration-300";
+                toastIcon.className = "fa-solid fa-circle-info text-sky-400";
+            }
+
+            toast.classList.remove('hidden');
+            toast.style.opacity = "1";
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
